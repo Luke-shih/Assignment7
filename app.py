@@ -79,7 +79,6 @@ def signin():
         return redirect(url_for('error', message = request.args.get("message", "帳號或密碼錯誤")))
 @app.route("/member")
 def member():
-
     if "username" in session and "password" in session:
         result = request.args.get("name", nickname)
         return render_template("member.html", data = result)
@@ -99,28 +98,16 @@ def api():
         fail = {
             "data": None
         }
-
         return jsonify(fail)
     else:
-        cursor = db.cursor()
-        # 取出 id
-        sql = "SELECT id FROM website.user where username = %s;"
+        sql = "SELECT id, name, username FROM website.user where username = %s;"
         cursor.execute(sql, username)
-        id = cursor.fetchall()
-        # 取出 name
-        sql = "SELECT name FROM website.user where username = %s;"
-        cursor.execute(sql, username)
-        name = cursor.fetchall()
-        # 取出 username
-        sql = "SELECT username FROM website.user where username = %s;"
-        cursor.execute(sql, username)
-        username = cursor.fetchall()
-
+        info = cursor.fetchone()    # 通過info[0], info[1], info[2] 依次為 id, user, password
         success = {
             "data": {
-                "id": id,
-                "name": name,
-                "username": username
+                "id": info[0],
+                "name": info[1],
+                "username": info[2]
             }
         }
         return jsonify(success)
